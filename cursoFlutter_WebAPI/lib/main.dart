@@ -11,6 +11,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Simple Journal',
+      theme: ThemeData(
+          primarySwatch: Colors.grey,
+          appBarTheme: const AppBarTheme(
+              backgroundColor: Colors.black,
+              titleTextStyle: TextStyle(color: Colors.white, fontSize: 20))),
       debugShowCheckedModeBanner: false,
       darkTheme: ThemeData.dark(),
       themeMode: ThemeMode.light,
