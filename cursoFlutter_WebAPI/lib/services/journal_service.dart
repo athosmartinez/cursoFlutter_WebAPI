@@ -37,7 +37,7 @@ class JournalService {
     http.Response response = await client.post(Uri.parse(getUrl()),
         headers: {'Content-Type': 'application/json'}, body: jsonJournal);
 
-    if (int.parse(response.toString()) == 201) {
+    if (response == 201) {
       return true;
     }
 
