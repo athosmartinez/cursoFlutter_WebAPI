@@ -1,20 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_webapi_first_course/models/journal.dart';
-import 'package:flutter_webapi_first_course/screens/add_journal_screen.dart';
-
-import 'package:flutter_webapi_first_course/services/journal_service.dart';
+import 'package:flutter_webapi_first_course/screens/add_journal_screen/add_journal_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'screens/home_screen/home_screen.dart';
 
 void main() {
   runApp(const MyApp());
-  JournalService service = JournalService();
-  service.register(Journal.empty());
-  service.get();
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -43,6 +38,7 @@ class MyApp extends StatelessWidget {
             return AddJournalScreen(journal: journal);
           });
         }
+        return null;
       }),
     );
   }
