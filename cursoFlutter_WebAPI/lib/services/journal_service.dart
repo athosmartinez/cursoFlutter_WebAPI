@@ -1,11 +1,17 @@
 import 'dart:convert';
-import 'dart:io';  // Import dart:io for platform checks
+import 'dart:io'; // Import dart:io for platform checks
+import 'package:flutter_webapi_first_course/models/journal.dart';
+import 'package:flutter_webapi_first_course/services/http_interceptors.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_interceptor/http/http.dart';
 
 class JournalService {
   // Use a generic URL first
   static const String baseUrl = "http://localhost:3000/";
-  static const String resource = "learnhttp/";
+  static const String resource = "journals/";
+
+  http.Client client =
+      InterceptedClient.build(interceptors: [LoggingInterceptor()]);
 
   // Determine the base URL based on the operating system
   static String get url {
@@ -25,17 +31,22 @@ class JournalService {
     return "$url$resource";
   }
 
-  Future<void> register(String content) async {
-    await http.post(
-      Uri.parse(getUrl()),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'content': content}),
-    );
+  Future<bool> register(Journal journal) async {
+    String jsonJournal = jsonEncode(journal.toMap());
+
+    http.Response response = await client.post(Uri.parse(getUrl()),
+        headers: {'Content-Type': 'application/json'}, body: jsonJournal);
+
+    if (response == 201) {
+      return true;
+    }
+
+    return false;
   }
 
   Future<String> get() async {
-    http.Response response = await http.get(Uri.parse(getUrl()));
-    print(response.body);
+    http.Response response = await client.get(Uri.parse(getUrl()));
+
     return response.body;
   }
 }

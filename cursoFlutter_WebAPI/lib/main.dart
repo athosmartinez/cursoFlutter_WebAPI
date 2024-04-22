@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_webapi_first_course/models/journal.dart';
+import 'package:flutter_webapi_first_course/screens/add_journal_screen.dart';
+
 import 'package:flutter_webapi_first_course/services/journal_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'screens/home_screen/home_screen.dart';
@@ -6,11 +9,7 @@ import 'screens/home_screen/home_screen.dart';
 void main() {
   runApp(const MyApp());
   JournalService service = JournalService();
-  service.register("yuhguiyvuiyv").catchError((error) {
-    // Handle or log error
-    print('Error registering content: $error');
-  });
-
+  service.register(Journal.empty());
   service.get();
 }
 
@@ -21,12 +20,15 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Simple Journal',
       theme: ThemeData(
-          primarySwatch: Colors.grey,
-          appBarTheme: const AppBarTheme(
-              elevation: 0,
-              backgroundColor: Colors.black,
-              titleTextStyle: TextStyle(color: Colors.white, fontSize: 20)),
-          textTheme: GoogleFonts.bitterTextTheme()),
+        primarySwatch: Colors.grey,
+        appBarTheme: const AppBarTheme(
+            elevation: 0,
+            backgroundColor: Colors.black,
+            titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
+            actionsIconTheme: IconThemeData(color: Colors.white),
+            iconTheme: IconThemeData(color: Colors.white)),
+        textTheme: GoogleFonts.bitterTextTheme(),
+      ),
       debugShowCheckedModeBanner: false,
       darkTheme: ThemeData.dark(),
       themeMode: ThemeMode.light,
@@ -34,6 +36,14 @@ class MyApp extends StatelessWidget {
       routes: {
         "home": (context) => const HomeScreen(),
       },
+      onGenerateRoute: ((settings) {
+        if (settings.name == "addJournal") {
+          final Journal journal = settings.arguments as Journal;
+          return MaterialPageRoute(builder: (context) {
+            return AddJournalScreen(journal: journal);
+          });
+        }
+      }),
     );
   }
 }
