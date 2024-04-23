@@ -1,6 +1,9 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_webapi_first_course/helpers/weekday.dart';
 import 'package:flutter_webapi_first_course/models/journal.dart';
+import 'package:flutter_webapi_first_course/screens/commom/confirmation_dialog.dart';
+import 'package:flutter_webapi_first_course/services/journal_service.dart';
 import 'package:uuid/uuid.dart';
 
 class JournalCard extends StatelessWidget {
@@ -17,7 +20,9 @@ class JournalCard extends StatelessWidget {
   Widget build(BuildContext context) {
     if (journal != null) {
       return InkWell(
-        onTap: () {},
+        onTap: () {
+          callAddJournalScreen(context, journal: journal);
+        },
         child: Container(
           height: 115,
           margin: const EdgeInsets.all(8),
@@ -78,6 +83,11 @@ class JournalCard extends StatelessWidget {
                   ),
                 ),
               ),
+              IconButton(
+                  onPressed: () {
+                    removeJournal(context);
+                  },
+                  icon: Icon(Icons.delete))
             ],
           ),
         ),
@@ -100,14 +110,45 @@ class JournalCard extends StatelessWidget {
     }
   }
 
-  callAddJournalScreen(BuildContext context) {
-    Navigator.pushNamed(context, "addJournal",
-            arguments: Journal(
-                id: const Uuid().v1(),
-                content: "content",
-                createdAt: showedDate,
-                updatedAt: showedDate))
-        .then((value) {
+  removeJournal(BuildContext context) {
+    JournalService service = JournalService();
+    if (journal != null) {
+      if (showConfirmationDialog(context)) {
+        service.delete(journal!.id).then((value) {
+          if (value) {
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Removido com sucesso!")));
+          }
+        });
+        refreshFunction();
+      } else {
+        refreshFunction();
+      }
+    }
+  }
+
+  callAddJournalScreen(BuildContext context, {Journal? journal}) {
+    Journal innerJournal = Journal(
+        id: const Uuid().v1(),
+        content: "",
+        createdAt: showedDate,
+        updatedAt: showedDate);
+
+    Map<String, dynamic> map = {};
+    if (journal != null) {
+      innerJournal = journal;
+      map["isEditing"] = true;
+    } else {
+      map["isEditing"] = false;
+    }
+
+    map["journal"] = innerJournal;
+
+    Navigator.pushNamed(
+      context,
+      "addJournal",
+      arguments: map,
+    ).then((value) {
       refreshFunction();
       if (value != null && value == true) {
         ScaffoldMessenger.of(context).showSnackBar(

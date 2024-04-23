@@ -37,7 +37,7 @@ class JournalService {
     http.Response response = await client.post(Uri.parse(getUrl()),
         headers: {'Content-Type': 'application/json'}, body: jsonJournal);
 
-    if (response == 201) {
+    if (response.statusCode == 201) {
       return true;
     }
 
@@ -59,5 +59,29 @@ class JournalService {
       list.add(Journal.fromMap(jsonMap));
     }
     return list;
+  }
+
+  Future<bool> edit(String id, Journal journal) async {
+    String jsonJournal = jsonEncode(journal.toMap());
+
+    http.Response response = await client.put(Uri.parse("${getUrl()}${id}"),
+        headers: {'Content-Type': 'application/json'}, body: jsonJournal);
+
+    if (response.statusCode == 200) {
+      return true;
+    }
+
+    return false;
+  }
+
+  Future<bool> delete(String id) async {
+    http.Response response = await client.delete(Uri.parse("${getUrl()}$id"),
+        headers: {'Content-Type': 'application/json'});
+
+    if (response.statusCode == 200) {
+      return true;
+    }
+
+    return false;
   }
 }
