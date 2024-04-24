@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_webapi_first_course/helpers/weekday.dart';
 import 'package:flutter_webapi_first_course/models/journal.dart';
@@ -10,11 +9,16 @@ class JournalCard extends StatelessWidget {
   final Journal? journal;
   final DateTime showedDate;
   final Function refreshFunction;
+  final int userId;
+  final String token;
+
   const JournalCard(
       {super.key,
       this.journal,
       required this.showedDate,
-      required this.refreshFunction});
+      required this.refreshFunction,
+      required this.userId,
+      required this.token});
 
   @override
   Widget build(BuildContext context) {
@@ -113,17 +117,23 @@ class JournalCard extends StatelessWidget {
   removeJournal(BuildContext context) {
     JournalService service = JournalService();
     if (journal != null) {
-      if (showConfirmationDialog(context)) {
-        service.delete(journal!.id).then((value) {
-          if (value) {
-            ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Removido com sucesso!")));
-          }
-        });
-        refreshFunction();
-      } else {
-        refreshFunction();
-      }
+      showConfirmationDialog(context,
+              content:
+                  "Deseja remover a anotação do dia ${journal!.createdAt.day}/${journal!.createdAt.month}/${journal!.createdAt.year}?",
+              affirmationOption: "Remover")
+          .then((value) {
+        if (value != null && value == true) {
+          service.delete(journal!.id, token).then((value) {
+            if (value) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Removido com sucesso!")));
+            }
+          });
+          refreshFunction();
+        } else {
+          refreshFunction();
+        }
+      });
     }
   }
 
@@ -132,7 +142,8 @@ class JournalCard extends StatelessWidget {
         id: const Uuid().v1(),
         content: "",
         createdAt: showedDate,
-        updatedAt: showedDate);
+        updatedAt: showedDate,
+        userId: userId.toString());
 
     Map<String, dynamic> map = {};
     if (journal != null) {
