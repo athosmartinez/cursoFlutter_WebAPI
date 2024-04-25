@@ -41,11 +41,14 @@ class JournalService {
         },
         body: jsonJournal);
 
-    if (response.statusCode == 201) {
-      return true;
+    if (response.statusCode != 201) {
+      if (jsonDecode(response.body) == "jwt experid") {
+        throw tokenNotValidException();
+      }
+      throw HttpException(response.body);
     }
 
-    return false;
+    return true;
   }
 
   Future<List<Journal>> getAll(
@@ -56,7 +59,10 @@ class JournalService {
     );
 
     if (response.statusCode != 200) {
-      throw Exception();
+      if (jsonDecode(response.body) == "jwt experid") {
+        throw tokenNotValidException();
+      }
+      throw HttpException(response.body);
     }
 
     List<Journal> list = [];
@@ -79,21 +85,32 @@ class JournalService {
         },
         body: jsonJournal);
 
-    if (response.statusCode == 200) {
-      return true;
+    if (response.statusCode != 200) {
+      if (jsonDecode(response.body) == "jwt experid") {
+        throw tokenNotValidException();
+      }
+      throw HttpException(response.body);
     }
 
-    return false;
+    return true;
   }
 
   Future<bool> delete(String id, String token) async {
     http.Response response = await client.delete(Uri.parse("${getUrl()}$id"),
-        headers: {'Content-Type': 'application/json', 'Authorization': "Bearer ${token}"});
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': "Bearer ${token}"
+        });
 
-    if (response.statusCode == 200) {
-      return true;
+    if (response.statusCode != 200) {
+      if (jsonDecode(response.body) == "jwt experid") {
+        throw tokenNotValidException();
+      }
+      throw HttpException(response.body);
     }
 
-    return false;
+    return true;
   }
 }
+
+class tokenNotValidException implements Exception {}

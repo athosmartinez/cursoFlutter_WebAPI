@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_webapi_first_course/helpers/logout.dart';
 import 'package:flutter_webapi_first_course/helpers/weekday.dart';
 import 'package:flutter_webapi_first_course/models/journal.dart';
 import 'package:flutter_webapi_first_course/screens/commom/confirmation_dialog.dart';
+import 'package:flutter_webapi_first_course/screens/commom/exception_dialog.dart';
 import 'package:flutter_webapi_first_course/services/journal_service.dart';
 import 'package:uuid/uuid.dart';
 
@@ -121,19 +125,30 @@ class JournalCard extends StatelessWidget {
               content:
                   "Deseja remover a anotação do dia ${journal!.createdAt.day}/${journal!.createdAt.month}/${journal!.createdAt.year}?",
               affirmationOption: "Remover")
-          .then((value) {
-        if (value != null && value == true) {
-          service.delete(journal!.id, token).then((value) {
-            if (value) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Removido com sucesso!")));
-            }
-          });
-          refreshFunction();
-        } else {
-          refreshFunction();
-        }
-      });
+          .then(
+        (value) {
+          if (value != null && value == true) {
+            service.delete(journal!.id, token).then(
+              (value) {
+                if (value) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Removido com sucesso!"),
+                    ),
+                  );
+                  refreshFunction();
+                }
+              },
+            ).catchError((error) {
+              logout(context);
+            }, test: ((error) => error is tokenNotValidException)).catchError(
+                (error) {
+              var innerError = error as HttpException;
+              showExceptionDialog(context, content: innerError.message);
+            }, test: (error) => error is HttpException);
+          }
+        },
+      );
     }
   }
 

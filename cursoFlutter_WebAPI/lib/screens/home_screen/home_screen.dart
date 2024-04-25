@@ -1,5 +1,10 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_webapi_first_course/helpers/logout.dart';
 import 'package:flutter_webapi_first_course/main.dart';
+import 'package:flutter_webapi_first_course/screens/commom/exception_dialog.dart';
 import 'package:flutter_webapi_first_course/screens/home_screen/widgets/home_screen_list.dart';
 import 'package:flutter_webapi_first_course/services/journal_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -52,6 +57,19 @@ class _HomeScreenState extends State<HomeScreen> {
           )
         ],
       ),
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            ListTile(
+              onTap: () {
+                logout(context);
+              },
+              title: Text("Sair"),
+              leading: Icon(Icons.logout),
+            )
+          ],
+        ),
+      ),
       body: (userId != null && usertoken != null)
           ? ListView(
               controller: _listScrollController,
@@ -93,6 +111,11 @@ class _HomeScreenState extends State<HomeScreen> {
       } else {
         Navigator.pushReplacementNamed(context, "login");
       }
-    });
+    }).catchError((error) {
+      logout(context);
+    }, test: ((error) => error is tokenNotValidException)).catchError((error) {
+      var innerError = error as HttpException;
+      showExceptionDialog(context, content: innerError.message);
+    }, test: (error) => error is HttpException);
   }
 }

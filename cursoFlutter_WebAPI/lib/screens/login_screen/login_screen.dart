@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_webapi_first_course/screens/commom/confirmation_dialog.dart';
+import 'package:flutter_webapi_first_course/screens/commom/exception_dialog.dart';
 import 'package:flutter_webapi_first_course/services/login_service.dart';
 import 'package:flutter_webapi_first_course/services/login_service.dart';
 
@@ -72,27 +75,36 @@ class LoginScreen extends StatelessWidget {
 
   login(BuildContext context,
       {required String email, required String password}) async {
-    try {
-      await service.login(email: email, password: password).then((resultLogin) {
+    await service.login(email: email, password: password).then(
+      (resultLogin) {
         if (resultLogin == true) {
           Navigator.pushReplacementNamed(context, "home");
         }
-      });
-    } on UserNotFindException {
-      showConfirmationDialog(context,
-              content: "Deseja criar uma conta com os dados inseridos?",
-              affirmationOption: "CRIAR")
-          .then((value) {
-        if (value != null && value == true) {
-          service
-              .register(email: email, password: password)
-              .then((resultRegister) {
-            if (resultRegister == true) {
-              Navigator.pushReplacementNamed(context, "home");
-            }
-          });
-        }
-      });
-    }
+      },
+    ).catchError(
+      (error) {
+        var innerError = error as HttpException;
+        showExceptionDialog(context, content: innerError.message);
+      },
+      test: (error) => error is HttpException,
+    ).catchError(
+      (error) {
+        showConfirmationDialog(context,
+                content: "Deseja criar uma conta com os dados inseridos?",
+                affirmationOption: "CRIAR")
+            .then((value) {
+          if (value != null && value == true) {
+            service
+                .register(email: email, password: password)
+                .then((resultRegister) {
+              if (resultRegister == true) {
+                Navigator.pushReplacementNamed(context, "home");
+              }
+            });
+          }
+        });
+      },
+      test: (error) => error is UserNotFindException,
+    );
   }
 }
