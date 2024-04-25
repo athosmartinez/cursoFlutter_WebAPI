@@ -95,7 +95,7 @@ class JournalCard extends StatelessWidget {
                   onPressed: () {
                     removeJournal(context);
                   },
-                  icon: Icon(Icons.delete))
+                  icon: const Icon(Icons.delete))
             ],
           ),
         ),

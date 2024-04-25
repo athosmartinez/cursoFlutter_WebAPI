@@ -1,20 +1,19 @@
 import 'dart:convert';
 import 'dart:io'; // Import dart:io for platform checks
 import 'package:flutter_webapi_first_course/models/journal.dart';
-import 'package:flutter_webapi_first_course/services/http_interceptors.dart';
+import 'package:flutter_webapi_first_course/services/webClient.dart';
 import 'package:http/http.dart' as http;
-import 'package:http_interceptor/http/http.dart';
 
 class JournalService {
   // Use a generic URL first
-  static const String baseUrl = "http://localhost:3000/";
+
+  // Use a generic URL first
+  String baseUrl = webClient().baseUrl;
+  http.Client client = webClient().client;
   static const String resource = "journals/";
 
-  http.Client client =
-      InterceptedClient.build(interceptors: [LoggingInterceptor()]);
-
   // Determine the base URL based on the operating system
-  static String get url {
+  String get url {
     if (Platform.isAndroid) {
       // Use the special IP for Android emulator
       return "http://10.0.2.2:3000/";
@@ -37,7 +36,7 @@ class JournalService {
     http.Response response = await client.post(Uri.parse(getUrl()),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': "Bearer ${token}",
+          'Authorization': "Bearer $token",
         },
         body: jsonJournal);
 
@@ -76,12 +75,14 @@ class JournalService {
   }
 
   Future<bool> edit(String id, Journal journal, String token) async {
+    journal.updatedAt = DateTime.now();
+
     String jsonJournal = jsonEncode(journal.toMap());
 
-    http.Response response = await client.put(Uri.parse("${getUrl()}${id}"),
+    http.Response response = await client.put(Uri.parse("${getUrl()}$id"),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': "Bearer ${token}"
+          'Authorization': "Bearer $token"
         },
         body: jsonJournal);
 
@@ -99,7 +100,7 @@ class JournalService {
     http.Response response = await client.delete(Uri.parse("${getUrl()}$id"),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': "Bearer ${token}"
+          'Authorization': "Bearer $token"
         });
 
     if (response.statusCode != 200) {

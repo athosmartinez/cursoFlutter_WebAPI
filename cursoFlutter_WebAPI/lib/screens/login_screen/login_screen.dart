@@ -1,18 +1,15 @@
+import 'dart:async';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_webapi_first_course/screens/commom/confirmation_dialog.dart';
 import 'package:flutter_webapi_first_course/screens/commom/exception_dialog.dart';
 import 'package:flutter_webapi_first_course/services/login_service.dart';
-import 'package:flutter_webapi_first_course/services/login_service.dart';
-
-import '../../services/login_service.dart';
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
 
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   loginService service = loginService();
 
@@ -104,7 +101,13 @@ class LoginScreen extends StatelessWidget {
           }
         });
       },
-      test: (error) => error is UserNotFindException,
+      test: (error) => error is HttpException,
+    ).catchError(
+      (error) {
+        showConfirmationDialog(context,
+            content: "O servidor demorou a responder");
+      },
+      test: (error) => error is TimeoutException,
     );
   }
 }

@@ -1,22 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io'; // Import dart:io for platform checks
-import 'package:flutter_webapi_first_course/models/journal.dart';
-import 'package:flutter_webapi_first_course/services/http_interceptors.dart';
+import 'package:flutter_webapi_first_course/services/webClient.dart';
 import 'package:http/http.dart' as http;
-import 'package:http_interceptor/http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class loginService {
   // Use a generic URL first
-  static const String baseUrl = "http://localhost:3000/";
-  static const String resource = "journals/";
-
-  http.Client client =
-      InterceptedClient.build(interceptors: [LoggingInterceptor()]);
+  String baseUrl = webClient().baseUrl;
+  http.Client client = webClient().client;
 
   // Determine the base URL based on the operating system
-  static String get url {
+  String get url {
     if (Platform.isAndroid) {
       // Use the special IP for Android emulator
       return "http://10.0.2.2:3000/";
