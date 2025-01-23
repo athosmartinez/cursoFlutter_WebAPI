@@ -37,3 +37,5 @@ Gostou do projeto e quer conhecer mais? Você pode [acessar o curso](https://cur
 - Métodos do HTTP como GET e POST;
 
 Esse curso faz parte da [formação de Flutter da Alura](https://cursos.alura.com.br/formacao-flutter)
+
+Te vejo lá!*
